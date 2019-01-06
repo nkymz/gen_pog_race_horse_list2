@@ -208,7 +208,6 @@ def write_html(race_horse_list, date_time_now):
 def main():
     args = sys.argv
     is_sp_reg = True if len(args) > 1 and args[1] == "sp" else False
-    is_sp_reg = True
     mynow = datetime.datetime.today()
     date_time_now = mynow.strftime("%Y/%m/%d %H:%M:%S")
     race_horse_list = []
