@@ -174,11 +174,14 @@ class SoupNK:
         time.sleep(seconds)
         self.mysession.post(login_url, data=LOGIN_INFO)
 
-    def get(self, target_url):
+    def get(self, target_url, *args):
         time.sleep(self.seconds)
         r = self.mysession.get(target_url)
         if r.status_code == requests.codes.ok:
-            return BeautifulSoup(r.content, self.parser)
+            if "ignore_euc-jp" in args:
+                return BeautifulSoup(r.content.decode("euc-jp", "ignore").encode("euc-jp"), self.parser)
+            else:
+                return BeautifulSoup(r.content, self.parser)
         else:
             return None
 

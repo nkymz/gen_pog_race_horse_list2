@@ -10,7 +10,7 @@ from ppropkg.pprotext import RHListHTML
 
 
 def get_stable_comment(horse_no, race_id, soup_nk):
-    soup = soup_nk.get('http://race.netkeiba.com/?pid=race_old&id=' + "c" + race_id + '&mode=comment')
+    soup = soup_nk.get('http://race.netkeiba.com/?pid=race_old&id=' + "c" + race_id + '&mode=comment', "ignore_euc-jp")
 
     if not soup.find("div", class_="race_comment_box"):
         return ""
