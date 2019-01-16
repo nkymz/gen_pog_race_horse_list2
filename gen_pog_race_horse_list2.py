@@ -10,7 +10,7 @@ from ppropkg.pprotext import RHListHTML
 
 
 def get_stable_comment(horse_no, race_id, soup_nk):
-    soup = soup_nk.get('http://race.netkeiba.com/?pid=race_old&id=' + "c" + race_id + '&mode=comment')
+    soup = soup_nk.get('http://race.netkeiba.com/?pid=race_old&id=' + "c" + race_id + '&mode=comment', "ignore_euc-jp")
 
     if not soup.find("div", class_="race_comment_box"):
         return ""
@@ -208,7 +208,6 @@ def write_html(race_horse_list, date_time_now):
 def main():
     args = sys.argv
     is_sp_reg = True if len(args) > 1 and args[1] == "sp" else False
-    is_sp_reg = True
     mynow = datetime.datetime.today()
     date_time_now = mynow.strftime("%Y/%m/%d %H:%M:%S")
     race_horse_list = []
