@@ -96,13 +96,13 @@ def get_race_info(race_url, horse_url, race_status, soup_nk, race_id, horse_name
     soup = soup_nk.get(race_url)
     h1_list = soup.find_all('h1')
     race_name = h1_list[1].text.strip()
-    race_attrib_list = h1_list[1].find_all_next('p', limit=4)
+    race_attrib_list = h1_list[1].find_all_next('p', limit=5)
     course = race_attrib_list[0].string.strip()
     race_time = race_attrib_list[1].string[-5:]
     weather = race_attrib_list[1].string.split("/")[0].split("：")[1]
     course_condition = race_attrib_list[1].string.split("/")[1].split("：")[1]
-    race_cond1 = race_attrib_list[2].string
-    race_cond2 = race_attrib_list[3].string
+    race_cond1 = race_attrib_list[3].string
+    race_cond2 = race_attrib_list[4].string
 
     horse_tag = soup.find("a", href=horse_url)
     horse_row = horse_tag.find_previous("tr")
@@ -122,6 +122,14 @@ def get_race_info(race_url, horse_url, race_status, soup_nk, race_id, horse_name
     else:
         odds = horse_row.find('td', class_='txt_r').string
         pop_rank = horse_row.find('td', class_='txt_r').find_next('td').string
+    if not horse_row.find('td', class_="txt_l horsename").find_all_next("td", limit=5)[1].string:
+        burden = None
+    else:
+        burden = horse_row.find('td', class_="txt_l horsename").find_all_next("td", limit=5)[1].string
+    if not horse_row.find('td', class_="txt_l horsename").find_all_next("td", limit=5)[4].string:
+        weight = None
+    else:
+        weight = horse_row.find('td', class_="txt_l horsename").find_all_next("td", limit=5)[4].string
 
     result, result_time, result_last3f = "00", "0", "0"
     result_url = None
@@ -144,7 +152,7 @@ def get_race_info(race_url, horse_url, race_status, soup_nk, race_id, horse_name
 
     return [race_time, race_name, course, race_cond1, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result,
             result_url, training_result_list, prediction_marks, stable_comment, result_time, result_last3f, weather,
-            course_condition]
+            course_condition, burden, weight]
 
 
 def get_waku(box_no):
@@ -180,7 +188,7 @@ def write_html(race_horse_list, date_time_now):
         sort_key, race_date, race_time, track, race_no, race_name, race_grade, course, race_cond1, race_cond2, \
             horse_no, box_no, horse_name, jockey, odds, pop_rank, race_url, horse_url, owner, origin, result, \
             race_status, is_seal, result_url, training_result_list, prediction_marks, stable_comment, result_time, \
-            result_last3f, weather, course_condition, race_id, horse_id \
+            result_last3f, weather, course_condition, race_id, horse_id, burden, weight \
             = race_horse
         waku = get_waku(box_no)
         race_url = result_url if race_status == "結果確定" else race_url
@@ -189,7 +197,7 @@ def write_html(race_horse_list, date_time_now):
         rhl_html.write_race_info(race_url, track, race_no, race_name, race_status, weather, race_time, course,
                                  race_cond2, course_condition, prev_date, race_date, prev_race_no, prev_race_time,
                                  prev_track, race_grade)
-        rhl_html.write_horse_info(horse_no, waku, horse_url, horse_name, is_seal, jockey, owner)
+        rhl_html.write_horse_info(horse_no, waku, horse_url, horse_name, is_seal, jockey, owner, burden, weight)
         rhl_html.write_origin(origin)
         rhl_html.write_horse_result(result, result_time, result_last3f, race_id, horse_id, race_grade)
         rhl_html.write_odds(odds, pop_rank, prediction_marks)
@@ -223,7 +231,8 @@ def main():
         race_url = 'http://race.netkeiba.com/?pid=race_old&id=' + "c" + race_id
         race_time, race_name, course, race_cond1, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result, \
             result_url, training_result_list, prediction_marks, stable_comment, result_time, result_last3f, weather, \
-            course_condition = get_race_info(race_url, horse_url, race_status, soup_nk, race_id, horse_name)
+            course_condition, burden, weight \
+            = get_race_info(race_url, horse_url, race_status, soup_nk, race_id, horse_name)
         race_date = str(race_year) + "/" + str(race_month).zfill(2) + "/" + str(race_day).zfill(2) + "(" \
             + race_weekday + ")"
         sort_key = race_date + race_time + race_no + track + horse_no.zfill(2) + horse_name
@@ -232,7 +241,7 @@ def main():
                  race_cond1, race_cond2.replace("\xa0", " "), horse_no, box_no, horse_name, jockey, odds, pop_rank,
                  race_url, horse_url, owner, origin, result, race_status, is_seal, result_url, training_result_list,
                  prediction_marks, stable_comment, result_time, result_last3f, weather, course_condition, race_id,
-                 horse_id])
+                 horse_id, burden, weight])
     nk.quit()
     poh_list.close()
     race_horse_list.sort()

@@ -100,13 +100,15 @@ class RHListHTML:
             self.f.write('</ul></li>' + s)
             self.f.write(s2)
 
-    def write_horse_info(self, horse_no, waku, horse_url, horse_name, is_seal, jockey, owner):
+    def write_horse_info(self, horse_no, waku, horse_url, horse_name, is_seal, jockey, owner, burden, weight):
         if horse_no != "00":
             s1 = '<li>' + waku + str(horse_no) + " " + '<a href="' + horse_url + '">'
         else:
             s1 = '<li> <a href="' + horse_url + '">'
         s2 = '<s>' + horse_name + '</s>' if is_seal else horse_name
         s3 = " " + jockey if jockey else ""
+        s3 += " " + burden if burden else ""
+        s3 += " " + weight if weight else ""
         self.f.write(s1 + s2 + owner + '</a>' + s3 + '<br />\n')
 
     def write_origin(self, origin):
