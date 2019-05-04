@@ -15,28 +15,91 @@ WEBDRIVERPATH = r"C:\Selenium\chromedriver.exe"
 JRA_DF_URL = "http://www.jra.go.jp/datafile/"
 NK_AUTH_URL = "https://regist.netkeiba.com/account/?pid=login"
 NK_BM_URL = "https://race.netkeiba.com/?pid=bookmark&rf=navi"
+NK_TRAINING_URL = """
+http://race.netkeiba.com/?pid=race&id=c{}&mode=oikiri
+"""
+NK_LOCAL_TRAINING_URL = """
+http://nar.netkeiba.com/?pid=race&id=c{}&mode=oikiri
+"""
+NK_PREDICTIONS_URL = """
+http://race.netkeiba.com/?pid=yoso&id=c{}
+"""
+NK_LOCAL_PREDICTIONS_URL ="""
+http://nar.netkeiba.com/?pid=yoso&id=c{}
+"""
+NK_STABLE_COMMENT_URL = """
+http://race.netkeiba.com/?pid=race_old&id=c{}&mode=comment
+"""
+NK_LOCAL_STABLE_COMMENT_URL = """
+http://nar.netkeiba.com/?pid=race_old&id=c{}&mode=comment
+"""
 NK_BM_RACE_XP = """
-//div[contains(@class , 'BMHorseDataArea')][{}]//table[contains(@class, 'BMHorseDataTable')][{}]//a
+//*[@id="horse_bookmark"]/section/div[{}]/table[{}]/thead/tr/th[2]/div/p/a
+"""
+NK_BM_LOCAL_RACE_XP = """
+//*[@id="horse_bookmark"]/section/table[{}]/thead/tr/th[2]/div/p/a
 """
 NK_BM_HORSE_XP = """
-//div[contains(@class , 'BMHorseDataArea')][{}]//table[contains(@class, 'BMHorseDataTable')][{}]//tbody/tr[{}]//a
+//*[@id="horse_bookmark"]/section/div[{}]/table[{}]/tbody/tr[{}]/td[2]/a
+"""
+NK_BM_LOCAL_HORSE_XP = """
+//*[@id="horse_bookmark"]/section/table[{}]/tbody/tr[{}]/td[2]/a
 """
 NK_BM_DATE_XP = """
-//div[contains(@class , 'BMHorseDataArea')][{}]//h2
+//*[@id='horse_bookmark']/section/div[{}]/h2
 """
 NK_BM_CS_RN_XP = """
-//div[contains(@class , 'BMHorseDataArea')][{}]//table[contains(@class, 'BMHorseDataTable')][{}]//th[1]
+//*[@id="horse_bookmark"]/section/div[{}]/table[{}]/thead/tr/th[1]
+"""
+NK_BM_LOCAL_CS_RN_XP = """
+//*[@id="horse_bookmark"]/section/table[{}]/thead/tr/th[1]
 """
 NK_BM_GRADE_XP = """
-//div[contains(@class , 'BMHorseDataArea')][{}]//table[contains(@class, 'BMHorseDataTable')][{}]//a/../span
+//*[@id="horse_bookmark"]/section/div[{}]/table[{}]/thead/tr/th[2]/div/p/span
+"""
+NK_BM_LOCAL_GRADE_XP = """
+//*[@id="horse_bookmark"]/section/table[{}]/thead/tr/th[2]/div/p/span
 """
 NK_BM_STATE_XP = """
-//div[contains(@class , 'BMHorseDataArea')][{}]//table[contains(@class, 'BMHorseDataTable')][{}]//th[3]
+//*[@id="horse_bookmark"]/section/div[{}]/table[{}]/thead/tr/th[3]/div
+"""
+NK_BM_LOCAL_STATE_XP = """
+//*[@id="horse_bookmark"]/section/table[{}]/thead/tr/th[3]/div
+"""
+NK_BM_NEXT_WEEK_XP = """
+//*[@id="horse_bookmark"]/section/div[2]/div[2]/a
+"""
+NK_BM_NEXT_DAY_XP = """
+//*[@id="horse_bookmark"]/section/div[2]/div[2]/a
+"""
+NK_BM_LOCAL_XP = """
+//*[@id="horse_bookmark"]/div[2]/ul/li[2]/a
+"""
+NK_BM_LOCAL_DATE_XP = """
+//*[@id="horse_bookmark"]/section/div[2]/p
+"""
+NK_RACE_NAME_XP = """
+//*[@id="main"]/div/div/div[4]/div/dl/dd/h1
+"""
+NK_LOCAL_RACE_NAME_XP = """
+//*[@id="main"]/div[3]/div/div[3]/div/dl/dd/h1
+"""
+NK_RACE_COURSE_XP = """
+//*[@id="main"]/div/div/div[4]/div/dl/dd/p[{}]
+"""
+NK_LOCAL_RACE_COURSE_XP = """
+//*[@id="main"]/div[3]/div/div[3]/div/dl/dd/p[{}]/span
+"""
+NK_RACE_INFO_XP = """
+//*[@id="main"]/div/div/div[4]/div/div/p[{}]
+"""
+NK_LOCAL_RACE_INFO_XP = """
+//*[@id="main"]/div[3]/div/div[3]/div/div/p[{}]
 """
 
-NK_BM_NEXT_WEEK_XP = """
-//div[contains(@class , 'RaceDayNext')]/a
-"""
+NK_TRAINING_XP = "//div[@id='race_main']/table/tbody"
+NK_PREDICTIONS_XP = "//div[@id='race_main']/table/tbody"
+NK_STABLE_COMMENT_XP = "//div[@class_='race_comment_box']/table/tbody"
 
 
 class NetKeiba:
@@ -53,10 +116,262 @@ class NetKeiba:
         self.driver.find_element_by_xpath("//input[contains(@name, 'pswd')]").send_keys(nk_pw)
         self.driver.find_element_by_xpath("//input[contains(@alt, 'ログイン')]").click()
 
+    def get_race_detail(self, race_url, horse_url, race_status, race_id, horse_name, is_local, status):
+        self.driver.get(race_url)
+        time.sleep(self.seconds)
+        if not is_local:
+            race_name = self.driver.find_element_by_xpath(NK_RACE_NAME_XP).text
+            course = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(1)).text
+            race_info = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(2)).text
+            race_cond1 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(2)).text
+            race_cond2 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(3)).text
+            race_time = race_info[-5:]
+            weather = race_info.split("/")[0].split("：")[1]
+            course_condition = race_info.split("/")[1].split("：")[1]
+        else:
+            race_name = self.driver.find_element_by_xpath(NK_LOCAL_RACE_NAME_XP).text
+            race_info = self.driver.find_element_by_xpath(NK_LOCAL_RACE_COURSE_XP.format(1)).text
+            race_cond1 = self.driver.find_element_by_xpath(NK_LOCAL_RACE_INFO_XP.format(1)).text
+            race_cond2 = race_cond1[-3:]
+            course = race_info.split("/")[0]
+            race_time = race_info[-5:]
+            weather = race_info.split("/")[1].split("：")[1]
+            course_condition = race_info.split("/")[2].split("：")[1]
+
+        header_text = [t.text.replace("\n", "") for t in self.driver.find_elements_by_xpath("//*[@id='shutuba']//table/tbody/tr[1]/th")]
+        print(header_text)
+        offset1 = 2 if race_status == "枠順確定" or race_status == "結果確定" else 0
+        offset2 = 1 if not is_local else 0
+        nk_horse_row_xp = "//a[contains(@href , '{}')]/../../../td[{}]" if not is_local \
+            else "//a[contains(@href , '{}')]/../../td[{}]"
+        nk_result_row_xp = "//a[contains(@href , '{}')]/../../td[{}]"
+
+        if "枠番" in header_text:
+            box_no_index = header_text.index("枠番") + 1
+            horse_no_index = header_text.index("馬番") + 1
+            try:
+                horse_no = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, horse_no_index)).text
+            except NoSuchElementException:
+                horse_no = "00"
+            try:
+                box_no = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, box_no_index)).text
+            except NoSuchElementException:
+                box_no = "0"
+        else:
+            horse_no = "00"
+            box_no = "0"
+
+        if "騎手" in header_text:
+            jockey_index = header_text.index("騎手") + 1
+            try:
+                jockey = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, jockey_index)).text
+            except NoSuchElementException:
+                jockey = None
+        else:
+            jockey = None
+
+        if "人気" in header_text:
+            pop_rank_index = header_text.index("人気") + 1
+            odds_index = header_text.index("人気") - 1 + 1
+            try:
+                pop_rank = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, pop_rank_index)).text
+            except NoSuchElementException:
+                pop_rank = None
+            try:
+                odds = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, odds_index)).text
+            except NoSuchElementException:
+                odds = None
+        else:
+            pop_rank = None
+            odds = None
+
+        if "負担重量" in header_text:
+            burden_index = header_text.index("負担重量") + 1
+            try:
+                burden = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, burden_index)).text
+            except NoSuchElementException:
+                burden = None
+        else:
+            burden = None
+
+        if "馬体重" in header_text:
+            weight_index = header_text.index("馬体重") + 1
+            try:
+                weight = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, 7 + weight_index)).text
+            except NoSuchElementException:
+                weight = None
+        else:
+            weight = None
+
+        result, result_time, result_last3f = "00", "0", "0"
+        result_url = None
+        if race_status == "結果確定":
+            result_url = race_url.replace("race_old", "race") + "&mode=result"
+            time.sleep(self.seconds)
+            self.driver.get(result_url)
+            try:
+                result = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 1)).text.zfill(2)
+            except NoSuchElementException:
+                result = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 9)).text
+            try:
+                result_time = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 8)).text
+            except NoSuchElementException:
+                pass
+            if not is_local:
+                try:
+                    result_last3f = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 12)).text
+                except NoSuchElementException:
+                    pass
+            else:
+                try:
+                    weight = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 13)).text
+                except NoSuchElementException:
+                    pass
+
+        training_result_list = self.get_training_result(int(horse_no), race_id, is_local)
+        prediction_marks = self.get_predictions(horse_name, race_id, is_local)
+        stable_comment = self.get_stable_comment(int(horse_no), race_id, is_local)
+
+        return [race_time, race_name, course, race_cond1, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result,
+                result_url, training_result_list, prediction_marks, stable_comment, result_time, result_last3f, weather,
+                course_condition, burden, weight]
+
+    def get_stable_comment(self, horse_no, race_id, is_local):
+        if not is_local:
+            try:
+                self.driver.get(NK_STABLE_COMMENT_URL.format(race_id))
+                time.sleep(self.seconds)
+            except:
+                return ""
+        else:
+            try:
+                self.driver.get(NK_LOCAL_STABLE_COMMENT_URL.format(race_id))
+                time.sleep(self.seconds)
+            except:
+                return ""
+
+        if not self.driver.find_elements_by_xpath(NK_STABLE_COMMENT_XP):
+            return ""
+
+        stable_comment = ""
+        stable_comment_columns = self.driver.find_elements_by_xpath(NK_STABLE_COMMENT_XP + "/tr[{}]/td"
+                                                                    .format(horse_no - 1))
+        stable_comment += stable_comment_columns[3].text + "【" + stable_comment_columns[4].text + "】"
+
+        return stable_comment
+
+    def get_predictions(self, horse_name, race_id, is_local):
+        if not is_local:
+            try:
+                self.driver.get(NK_PREDICTIONS_URL.format(race_id))
+                time.sleep(self.seconds)
+            except:
+                return ""
+        else:
+            try:
+                self.driver.get(NK_LOCAL_PREDICTIONS_URL.format(race_id))
+                time.sleep(self.seconds)
+            except:
+                return ""
+
+        if not self.driver.find_elements_by_xpath(NK_PREDICTIONS_XP):
+            return ""
+
+        prediction_header_text = [t.text.replace("\n", "") for t in self.driver.find_elements_by_xpath(NK_PREDICTIONS_XP + "/tr/th")]
+        hn_col_index = prediction_header_text.index("馬名")
+        table_rows = self.driver.find_elements_by_xpath(NK_PREDICTIONS_XP + "/tr/td[{}]".format(hn_col_index + 1))
+        horse_names = [t.text for i, t in enumerate(table_rows)]
+        horse_index = horse_names.index(horse_name)
+        predictions = self.driver.find_elements_by_xpath(NK_PREDICTIONS_XP + "/tr[{}]/td".format(horse_index + 2))
+        if not predictions:
+            return ""
+        prediction_marks = ""
+        if "CP予想" in prediction_header_text:
+            range_max = prediction_header_text.index("CP予想")
+        else:
+            range_max = hn_col_index
+        for i in range(2, range_max):
+            prediction_marks += predictions[i].text.strip() if predictions[i].text.strip("\n") != "" else "－"
+        return prediction_marks
+
+    def get_training_result(self, horse_no, race_id, is_local):
+        training_result_list = []
+
+        if not is_local:
+            try:
+                self.driver.get(NK_TRAINING_URL.format(race_id))
+                time.sleep(self.seconds)
+            except:
+                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+                return training_result_list
+        else:
+            try:
+                self.driver.get(NK_LOCAL_TRAINING_URL.format(race_id))
+                time.sleep(self.seconds)
+            except:
+                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+                return training_result_list
+
+        try:
+            self.driver.find_element_by_link_text("中間の調教全て").click()
+            time.sleep(self.seconds)
+        except NoSuchElementException:
+            pass
+
+        try:
+            training_table = self.driver.find_element_by_xpath(NK_TRAINING_XP)
+        except NoSuchElementException:
+            training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+            return training_result_list
+
+        table_rows = self.driver.find_elements_by_xpath(NK_TRAINING_XP + "/tr/td[2]")
+        horse_nos = [t.text for i, t in enumerate(table_rows)]
+        horse_index = horse_nos.index(str(horse_no)) + 2
+        try:
+            num_of_trainings_wk = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td"
+                                                                 .format(horse_index)).get_attribute("rowspan")
+            if not num_of_trainings_wk:
+                num_of_trainings = 1
+            else:
+                num_of_trainings = int(num_of_trainings_wk)
+        except NoSuchElementException:
+            num_of_trainings = 1
+
+        for i in range(num_of_trainings):
+            columns_offset = 0 if i == 0 else 3
+            training_date = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                 .format(horse_index, 4 - columns_offset)).text
+            if training_date.split("/")[0] == "0000":
+                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+            else:
+                training_course = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                 .format(horse_index, 5 - columns_offset)).text
+                training_course_condition = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                 .format(horse_index, 6 - columns_offset)).text
+                training_jockey = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                 .format(horse_index, 7 - columns_offset)).text
+                training_time_list = [t.text for t in self.driver.find_elements_by_xpath(NK_TRAINING_XP
+                                                    + "/tr[{}]/td[{}]/ul/li".format(horse_index, 8 - columns_offset))]
+                training_result_texts_list = [t.text for t in self.driver.find_elements_by_xpath(NK_TRAINING_XP
+                                                    + "/tr[{}]/td[{}]//p".format(horse_index, 8 - columns_offset))]
+                training_position = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                      .format(horse_index, 9 - columns_offset)).text
+                training_stride = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                        .format(horse_index, 10 - columns_offset)).text
+                training_eval_text = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                       .format(horse_index, 11 - columns_offset)).text
+                training_eval_rank = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                       .format(horse_index, 12 - columns_offset)).text
+                training_result_list.append([training_date, training_course, training_course_condition, training_jockey,
+                                             training_time_list, training_result_texts_list, training_position,
+                                             training_stride, training_eval_text, training_eval_rank])
+        return training_result_list
+
     def get_race_horse_list(self, is_sp_reg):
         time.sleep(self.seconds)
         race_horse_list_short = []
         self.driver.get(NK_BM_URL)
+        is_local = False
         h = 1
 
         while True:
@@ -67,48 +382,116 @@ class NetKeiba:
                         self.driver.find_element_by_xpath(NK_BM_NEXT_WEEK_XP).click()
                     except NoSuchElementException:
                         break
+                elif not is_local:
+                    is_local = True
+                    try:
+                        self.driver.find_element_by_xpath(NK_BM_LOCAL_XP).click()
+                    except NoSuchElementException:
+                        break
                 else:
-                    break
+                    try:
+                        self.driver.find_element_by_xpath(NK_BM_NEXT_DAY_XP).click()
+                    except NoSuchElementException:
+                        break
 
             while True:
-                j, k = 1, 1
-                try:
-                    race_mmdd_jpn = self.driver.find_element_by_xpath(NK_BM_DATE_XP.format(i)).text
-                except NoSuchElementException:
+                if is_local and i > 1:
                     break
-                race_month = int(race_mmdd_jpn.split("月")[0])
+                j, k = 1, 1
+                if not is_local:
+                    try:
+                        race_mmdd_jpn = self.driver.find_element_by_xpath(NK_BM_DATE_XP.format(i + 2)).text
+                    except NoSuchElementException:
+                        break
+                else:
+                    try:
+                        race_mmdd_jpn = self.driver.find_element_by_xpath(NK_BM_LOCAL_DATE_XP).text
+                    except NoSuchElementException:
+                        break
+                if not is_local:
+                    race_month = int(race_mmdd_jpn.split("月")[0])
+                else:
+                    race_month = int(race_mmdd_jpn.split("年")[1].split("月")[0])
                 race_day = int(race_mmdd_jpn.split("月")[1].split("日")[0])
                 race_weekday = race_mmdd_jpn.split("（")[1].split("）")[0]
                 while True:
                     k = 1
-                    try:
-                        race_url = self.driver.find_element_by_xpath(NK_BM_RACE_XP.format(i, j)).get_attribute("href")
-                    except NoSuchElementException:
-                        break
-                    race_status = self.driver.find_element_by_xpath(NK_BM_STATE_XP.format(i, j)).text
-                    if is_sp_reg and race_status != "特別登録" or not is_sp_reg and race_status == "特別登録":
-                        j += 1
-                        continue
-                    try:
-                        race_grade = self.driver.find_element_by_xpath(NK_BM_GRADE_XP.format(i, j)).text
-                    except NoSuchElementException:
-                        race_grade = None
-                    track_and_race_no = self.driver.find_element_by_xpath(NK_BM_CS_RN_XP.format(i, j)).text
-                    track = track_and_race_no[0:2]
-                    race_no = ("0" + track_and_race_no[2:])[-3:]
-                    race_id = race_url.split("=")[-1][1:]
-                    race_year = int(race_id[0:4])
-                    while True:
+                    if not is_local:
                         try:
-                            horse_url = self.driver.find_element_by_xpath(NK_BM_HORSE_XP.format(i, j, k))\
+                            race_url = self.driver.find_element_by_xpath(NK_BM_RACE_XP.format(i + 2, j))\
                                 .get_attribute("href")
                         except NoSuchElementException:
                             break
+                    else:
+                        try:
+                            race_url = self.driver.find_element_by_xpath(NK_BM_LOCAL_RACE_XP.format(j)).get_attribute(
+                                "href")
+                        except NoSuchElementException:
+                            break
+                    if not is_local:
+                        try:
+                            race_status = self.driver.find_element_by_xpath(NK_BM_STATE_XP.format(i + 2, j)).text
+                        except NoSuchElementException:
+                            break
+                    else:
+                        try:
+                            race_status = self.driver.find_element_by_xpath(NK_BM_LOCAL_STATE_XP.format(j)).text
+                        except NoSuchElementException:
+                            break
+                    if is_sp_reg and race_status != "特別登録" or not is_sp_reg and race_status == "特別登録":
+                        j += 1
+                        continue
+                    if not is_local:
+                        try:
+                            race_grade = self.driver.find_element_by_xpath(NK_BM_GRADE_XP.format(i + 2, j)).text
+                        except NoSuchElementException:
+                            race_grade = None
+                    else:
+                        try:
+                            race_grade = self.driver.find_element_by_xpath(NK_BM_LOCAL_GRADE_XP.format(j)).text
+                        except NoSuchElementException:
+                            race_grade = None
+                    if not is_local:
+                        try:
+                            track_and_race_no = self.driver.find_element_by_xpath(NK_BM_CS_RN_XP.format(i + 2, j)).text
+                        except NoSuchElementException:
+                            break
+                    else:
+                        try:
+                            track_and_race_no = self.driver.find_element_by_xpath(NK_BM_LOCAL_CS_RN_XP.format(j)).text
+                        except NoSuchElementException:
+                            break
+                    track = track_and_race_no[0:2]
+                    race_no = ("0" + track_and_race_no[2:])[-3:]
+                    race_id = race_url.split("=")[2][1:]
+                    race_year = int(race_id[0:4])
+                    while True:
+                        if not is_local:
+                            try:
+                                horse_url = self.driver.find_element_by_xpath(NK_BM_HORSE_XP.format(i + 2, j, k))\
+                                    .get_attribute("href")
+                            except NoSuchElementException:
+                                break
+                        else:
+                            try:
+                                horse_url = self.driver.find_element_by_xpath(NK_BM_LOCAL_HORSE_XP.format(j, k))\
+                                    .get_attribute("href")
+                            except NoSuchElementException:
+                                break
                         horse_id = horse_url[-11:-1]
-                        horse_name = self.driver.find_element_by_xpath(NK_BM_HORSE_XP.format(i, j, k)).text
+                        if not is_local:
+                            try:
+                                horse_name = self.driver.find_element_by_xpath(NK_BM_HORSE_XP.format(i + 2, j, k)).text
+                            except NoSuchElementException:
+                                break
+                        else:
+                            try:
+                                horse_name = self.driver.find_element_by_xpath(NK_BM_LOCAL_HORSE_XP.format(j, k)).text
+                            except NoSuchElementException:
+                                break
                         race_horse_list_short.append([race_year, race_month, race_day, race_weekday, track, race_id,
                                                       race_grade, race_no, race_status, horse_id,
-                                                      horse_url, horse_name])
+                                                      horse_url, horse_name, is_local])
                         k += 1
                     j += 1
                 i += 1
