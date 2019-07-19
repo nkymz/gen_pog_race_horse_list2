@@ -73,6 +73,13 @@ class RHListHTML:
         else:
             return "<br>"
 
+    @staticmethod
+    def _append_rank_down(result_diff):
+        if len(result_diff) > 2 and result_diff[-2:] == "降着":
+            return "(" + result_diff + ") "
+        else:
+            return " "
+
     def close(self):
         self.f.close()
 
@@ -114,17 +121,18 @@ class RHListHTML:
     def write_origin(self, origin):
         self.f.write(origin + '<br />\n')
 
-    def write_horse_result(self, result, result_time, result_last3f, race_id, horse_id, race_grade):
+    def write_horse_result(self, result, result_time, result_last3f, race_id, horse_id, race_grade, result_diff):
         if result == "01":
             s1 = '<span style="font-weight: 900; color:#FF0000;">1着</span>' + " " + result_time \
                  + self._append_last3f(result_last3f)
         elif race_grade and result == "02" and race_grade[0] == "G":
-            s1 = '<span style="font-weight: 700; color:#0000FF;">2着</span>' + " " + result_time \
-                 + self._append_last3f(result_last3f)
+            s1 = '<span style="font-weight: 700; color:#0000FF;">2着</span>' + self._append_rank_down(result_diff) \
+                 + result_time + self._append_last3f(result_last3f)
         elif result in ["中止", "除外", "取消"]:
             s1 = result + "<br>"
         elif result != "00":
-            s1 = result.lstrip("0") + '着' + " " + result_time + self._append_last3f(result_last3f)
+            s1 = result.lstrip("0") + '着' + self._append_rank_down(result_diff) \
+                 + result_time + self._append_last3f(result_last3f)
         else:
             s1 = ""
         if s1 != "":

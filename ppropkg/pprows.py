@@ -24,7 +24,7 @@ http://nar.netkeiba.com/?pid=race&id=c{}&mode=oikiri
 NK_PREDICTIONS_URL = """
 http://race.netkeiba.com/?pid=yoso&id=c{}
 """
-NK_LOCAL_PREDICTIONS_URL ="""
+NK_LOCAL_PREDICTIONS_URL = """
 http://nar.netkeiba.com/?pid=yoso&id=c{}
 """
 NK_STABLE_COMMENT_URL = """
@@ -181,6 +181,9 @@ class NetKeiba:
                 odds = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, odds_index)).text
             except NoSuchElementException:
                 odds = None
+            if odds in ["除外", "取消"]:
+                odds = 999.9
+                pop_rank = 99
         else:
             pop_rank = None
             odds = None
@@ -197,13 +200,13 @@ class NetKeiba:
         if "馬体重" in header_text:
             weight_index = header_text.index("馬体重") + 1
             try:
-                weight = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, 7 + weight_index)).text
+                weight = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url, weight_index)).text
             except NoSuchElementException:
                 weight = None
         else:
             weight = None
 
-        result, result_time, result_last3f = "00", "0", "0"
+        result, result_time, result_last3f, result_diff = "00", "0", "0", None
         result_url = None
         if race_status == "結果確定":
             result_url = race_url.replace("race_old", "race") + "&mode=result"
@@ -215,6 +218,12 @@ class NetKeiba:
                 result = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 9)).text
             try:
                 result_time = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 8)).text
+            except NoSuchElementException:
+                pass
+            try:
+                result_diff = self.driver.find_element_by_xpath(nk_result_row_xp.format(horse_url, 9)).text
+                if result_diff in ["中止", "除外", "取消"]:
+                    result = result_diff
             except NoSuchElementException:
                 pass
             if not is_local:
@@ -234,7 +243,7 @@ class NetKeiba:
 
         return [race_time, race_name, course, race_cond1, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result,
                 result_url, training_result_list, prediction_marks, stable_comment, result_time, result_last3f, weather,
-                course_condition, burden, weight]
+                course_condition, burden, weight, result_diff]
 
     def get_stable_comment(self, horse_no, race_id, is_local):
         if not is_local:
@@ -338,30 +347,31 @@ class NetKeiba:
             num_of_trainings = 1
 
         for i in range(num_of_trainings):
-            columns_offset = 0 if i == 0 else 3
+            j = horse_index + i
+            k = 0 if i == 0 else 3
             training_date = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                 .format(horse_index, 4 - columns_offset)).text
+                                                                 .format(j, 4 - k)).text
             if training_date.split("/")[0] == "0000":
                 training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
             else:
                 training_course = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                 .format(horse_index, 5 - columns_offset)).text
+                                                                 .format(j, 5 - k)).text
                 training_course_condition = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                 .format(horse_index, 6 - columns_offset)).text
+                                                                 .format(j, 6 - k)).text
                 training_jockey = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                 .format(horse_index, 7 - columns_offset)).text
+                                                                 .format(j, 7 - k)).text
                 training_time_list = [t.text for t in self.driver.find_elements_by_xpath(NK_TRAINING_XP
-                                                    + "/tr[{}]/td[{}]/ul/li".format(horse_index, 8 - columns_offset))]
+                                                    + "/tr[{}]/td[{}]/ul/li".format(j, 8 - k))]
                 training_result_texts_list = [t.text for t in self.driver.find_elements_by_xpath(NK_TRAINING_XP
-                                                    + "/tr[{}]/td[{}]//p".format(horse_index, 8 - columns_offset))]
+                                                    + "/tr[{}]/td[{}]//p".format(j, 8 - k))]
                 training_position = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                      .format(horse_index, 9 - columns_offset)).text
+                                                                      .format(j, 9 - k)).text
                 training_stride = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                        .format(horse_index, 10 - columns_offset)).text
+                                                                        .format(j, 10 - k)).text
                 training_eval_text = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                       .format(horse_index, 11 - columns_offset)).text
+                                                                       .format(j, 11 - k)).text
                 training_eval_rank = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                       .format(horse_index, 12 - columns_offset)).text
+                                                                       .format(j, 12 - k)).text
                 training_result_list.append([training_date, training_course, training_course_condition, training_jockey,
                                              training_time_list, training_result_texts_list, training_position,
                                              training_stride, training_eval_text, training_eval_rank])
@@ -463,7 +473,7 @@ class NetKeiba:
                             break
                     track = track_and_race_no[0:2]
                     race_no = ("0" + track_and_race_no[2:])[-3:]
-                    race_id = race_url.split("=")[2][1:]
+                    race_id = race_url.split("=")[2][1:] if is_local else race_url.split("=")[-1][1:]
                     race_year = int(race_id[0:4])
                     while True:
                         if not is_local:
