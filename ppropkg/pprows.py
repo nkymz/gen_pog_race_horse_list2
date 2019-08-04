@@ -81,17 +81,26 @@ NK_BM_LOCAL_DATE_XP = """
 NK_RACE_NAME_XP = """
 //*[@id="main"]/div/div/div[4]/div/dl/dd/h1
 """
+NK_RACE_NAME_XP_SP = """
+//*[@id="main"]/div/div/div[3]/div/dl/dd/h1
+"""
 NK_LOCAL_RACE_NAME_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/dl/dd/h1
 """
 NK_RACE_COURSE_XP = """
 //*[@id="main"]/div/div/div[4]/div/dl/dd/p[{}]
 """
+NK_RACE_COURSE_XP_SP = """
+//*[@id="main"]/div/div/div[3]/div/dl/dd/p[{}]
+"""
 NK_LOCAL_RACE_COURSE_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/dl/dd/p[{}]/span
 """
 NK_RACE_INFO_XP = """
 //*[@id="main"]/div/div/div[4]/div/div/p[{}]
+"""
+NK_RACE_INFO_XP_SP = """
+//*[@id="main"]/div/div/div[3]/div/div/p[{}]
 """
 NK_LOCAL_RACE_INFO_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/div/p[{}]
@@ -120,11 +129,18 @@ class NetKeiba:
         self.driver.get(race_url)
         time.sleep(self.seconds)
         if not is_local:
-            race_name = self.driver.find_element_by_xpath(NK_RACE_NAME_XP).text
-            course = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(1)).text
-            race_info = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(2)).text
-            race_cond1 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(2)).text
-            race_cond2 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(3)).text
+            if race_status == "特別登録":
+                race_name = self.driver.find_element_by_xpath(NK_RACE_NAME_XP_SP).text
+                course = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP_SP.format(1)).text
+                race_info = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP_SP.format(2)).text
+                race_cond1 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP_SP.format(2)).text
+                race_cond2 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP_SP.format(3)).text
+            else:
+                race_name = self.driver.find_element_by_xpath(NK_RACE_NAME_XP).text
+                course = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(1)).text
+                race_info = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(2)).text
+                race_cond1 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(2)).text
+                race_cond2 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(3)).text
             race_time = race_info[-5:]
             weather = race_info.split("/")[0].split("：")[1]
             course_condition = race_info.split("/")[1].split("：")[1]
