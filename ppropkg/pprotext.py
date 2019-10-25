@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import pprint
 
 NK_HORSE_URL_HEAD = "http://db.netkeiba.com/horse/"
 
@@ -147,6 +148,9 @@ class RHListHTML:
             self.f.write(stable_comment + "<br />\n")
 
     def write_training_result(self, training_result_list, race_id, horse_id):
+        pprint.pprint(training_result_list)
+        print(race_id)
+        print(horse_id)
         s = '<table border="1">'
         for training_result_row in training_result_list:
             training_date, training_course, training_course_condition, training_jockey, training_time_list, \

@@ -3,6 +3,7 @@
 import sys
 #import re
 import datetime
+import pprint
 
 from ppropkg.pproxls import POHorseList
 from ppropkg.pprows import NetKeiba, SoupNK
@@ -140,7 +141,7 @@ def main():
     nk.quit()
     poh_list.close()
     race_horse_list.sort()
-
+    pprint.pprint(race_horse_list)
     write_html(race_horse_list, date_time_now)
 
 

@@ -106,9 +106,17 @@ NK_LOCAL_RACE_INFO_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/div/p[{}]
 """
 
-NK_TRAINING_XP = "//div[@id='race_main']/table/tbody"
-NK_PREDICTIONS_XP = "//div[@id='race_main']/table/tbody"
-NK_STABLE_COMMENT_XP = "//div[@class_='race_comment_box']/table/tbody"
+NK_TRAINING_XP = """
+//div[@id="race_main"]/table/tbody
+"""
+
+NK_PREDICTIONS_XP = """
+//div[@id="race_main"]/table/tbody
+"""
+
+NK_STABLE_COMMENT_XP = """
+//div[@id="race_main"]//table/tbody
+"""
 
 
 class NetKeiba:
@@ -280,7 +288,7 @@ class NetKeiba:
 
         stable_comment = ""
         stable_comment_columns = self.driver.find_elements_by_xpath(NK_STABLE_COMMENT_XP + "/tr[{}]/td"
-                                                                    .format(horse_no - 1))
+                                                                    .format(horse_no + 1))
         stable_comment += stable_comment_columns[3].text + "【" + stable_comment_columns[4].text + "】"
 
         return stable_comment
