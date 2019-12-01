@@ -78,8 +78,11 @@ NK_BM_LOCAL_XP = """
 NK_BM_LOCAL_DATE_XP = """
 //*[@id="horse_bookmark"]/section/div[2]/p
 """
-NK_RACE_NAME_XP = """
+NK_RACE_NAME_XPold = """
 //*[@id="main"]/div/div/div[4]/div/dl/dd/h1
+"""
+NK_RACE_NAME_XP = """
+//dl[contains(concat(' ',normalize-space(@class),' '),' racedata ') and contains(concat(' ',normalize-space(@class),' '),' fc ')]/dd/h1
 """
 NK_RACE_NAME_XP_SP = """
 //*[@id="main"]/div/div/div[3]/div/dl/dd/h1
@@ -88,16 +91,19 @@ NK_LOCAL_RACE_NAME_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/dl/dd/h1
 """
 NK_RACE_COURSE_XP = """
-//*[@id="main"]/div/div/div[4]/div/dl/dd/p[{}]
+//*[@id="main"]//dl/dd/p[{}]
 """
 NK_RACE_COURSE_XP_SP = """
-//*[@id="main"]/div/div/div[3]/div/dl/dd/p[{}]
+//*[@id="main"]//dl/dd/p[{}]
 """
 NK_LOCAL_RACE_COURSE_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/dl/dd/p[{}]/span
 """
-NK_RACE_INFO_XP = """
+NK_RACE_INFO_XPold = """
 //*[@id="main"]/div/div/div[4]/div/div/p[{}]
+"""
+NK_RACE_INFO_XP = """
+//*[@id="main"]//div[@class="race_otherdata"]/p[{}]
 """
 NK_RACE_INFO_XP_SP = """
 //*[@id="main"]/div/div/div[3]/div/div/p[{}]
