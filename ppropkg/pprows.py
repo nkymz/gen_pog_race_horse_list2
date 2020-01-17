@@ -82,10 +82,10 @@ NK_RACE_NAME_XPold = """
 //*[@id="main"]/div/div/div[4]/div/dl/dd/h1
 """
 NK_RACE_NAME_XP = """
-//dl[contains(concat(' ',normalize-space(@class),' '),' racedata ') and contains(concat(' ',normalize-space(@class),' '),' fc ')]/dd/h1
+//*[@class_="RaceName"]
 """
 NK_RACE_NAME_XP_SP = """
-//*[@id="main"]/div/div/div[3]/div/dl/dd/h1
+//dl[contains(concat(' ',normalize-space(@class),' '),' racedata ') and contains(concat(' ',normalize-space(@class),' '),' fc ')]/dd/h1
 """
 NK_LOCAL_RACE_NAME_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/dl/dd/h1
@@ -106,7 +106,7 @@ NK_RACE_INFO_XP = """
 //*[@id="main"]//div[@class="race_otherdata"]/p[{}]
 """
 NK_RACE_INFO_XP_SP = """
-//*[@id="main"]/div/div/div[3]/div/div/p[{}]
+//*[@id="main"]//div[@class="race_otherdata"]/p[{}]
 """
 NK_LOCAL_RACE_INFO_XP = """
 //*[@id="main"]/div[3]/div/div[3]/div/div/p[{}]
@@ -150,14 +150,13 @@ class NetKeiba:
                 race_cond1 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP_SP.format(2)).text
                 race_cond2 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP_SP.format(3)).text
             else:
-                race_name = self.driver.find_element_by_xpath(NK_RACE_NAME_XP).text
-                course = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(1)).text
-                race_info = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP.format(2)).text
-                race_cond1 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(2)).text
-                race_cond2 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP.format(3)).text
-            race_time = race_info[-5:]
-            weather = race_info.split("/")[0].split("：")[1]
-            course_condition = race_info.split("/")[1].split("：")[1]
+                race_name = self.driver.find_element_by_class_name("RaceName").text
+                racedata01 = self.driver.find_element_by_class_name("RaceData01").text
+                race_cond2 = self.driver.find_element_by_class_name("RaceData02").text
+            race_time = racedata01.split("/")[0]
+            course = racedata01.split("/")[1]
+            weather = race_info.split("/")[2].split("：")[1]
+            course_condition = race_info.split("/")[3].split("：")[1]
         else:
             race_name = self.driver.find_element_by_xpath(NK_LOCAL_RACE_NAME_XP).text
             race_info = self.driver.find_element_by_xpath(NK_LOCAL_RACE_COURSE_XP.format(1)).text
