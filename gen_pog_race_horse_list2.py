@@ -125,7 +125,7 @@ def main():
             race_url = 'http://race.netkeiba.com/?pid=race_old&id=' + "c" + race_id
         else:
             race_url = 'http://nar.netkeiba.com/?pid=race_old&id=' + "c" + race_id
-        race_time, race_name, course, race_cond1, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result, \
+        race_time, race_name, course, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result, \
             result_url, training_result_list, prediction_marks, stable_comment, result_time, result_last3f, weather, \
             course_condition, burden, weight, result_diff \
             = nk.get_race_detail(race_url, horse_url, race_status, race_id, horse_name, is_local, race_status)
