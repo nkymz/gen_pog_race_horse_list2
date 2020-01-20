@@ -109,6 +109,7 @@ def write_html(race_horse_list, date_time_now):
 def main():
     args = sys.argv
     is_sp_reg = True if len(args) > 1 and args[1] == "sp" else False
+    is_past_result = True if len(args) > 1 and args[1] == "past" else False
     mynow = datetime.datetime.today()
     date_time_now = mynow.strftime("%Y/%m/%d %H:%M:%S")
     race_horse_list = []
@@ -117,7 +118,7 @@ def main():
     nk = NetKeiba(nk_id, nk_pw, 0, "test")
 #    soup_nk = SoupNK("html5lib", 1, nk_id, nk_pw)
 
-    for rhl_short in nk.get_race_horse_list(is_sp_reg):
+    for rhl_short in nk.get_race_horse_list(is_sp_reg, is_past_result):
         race_year, race_month, race_day, race_weekday, track, race_id, race_grade, race_no,\
             race_status, horse_id, horse_url, horse_name, is_local = rhl_short
         owner, origin, is_seal = poh_list.get_a_horse(horse_id, "ogr", "origin", "seal")

@@ -69,6 +69,9 @@ NK_BM_LOCAL_STATE_XP = """
 NK_BM_NEXT_WEEK_XP = """
 //*[@id="horse_bookmark"]/section/div[2]/div[2]/a
 """
+NK_BM_PREVIOUS_WEEK_XP = """
+//*[@id="horse_bookmark"]/section/div[2]/div[1]/a
+"""
 NK_BM_NEXT_DAY_XP = """
 //*[@id="horse_bookmark"]/section/div[2]/div[2]/a
 """
@@ -312,12 +315,12 @@ class NetKeiba:
             except:
                 return ""
 
-        if not self.driver.find_elements_by_xpath("//dl[@class_='umaban']"):
-            return ""
+#        if not self.driver.find_elements_by_xpath("//dl[@class_='umaban']"):
+#            return ""
 
-        prediction_header_text = [t.text.replace("\n", "") for t in self.driver.find_elements_by_xpath("//dl[@class_='umaban']")]
-        hn_col_index = prediction_header_text.index("馬名")
-        table_rows = self.driver.find_elements_by_xpath(NK_PREDICTIONS_XP + "/tr/td[{}]".format(hn_col_index + 1))
+#        prediction_header_text = [t.text.replace("\n", "") for t in self.driver.find_elements_by_xpath("//dl[@class_='umaban']")]
+#        hn_col_index = prediction_header_text.index("馬名")
+        table_rows = self.driver.find_elements_by_xpath("//dl[contains(@class,'Horse_Info')]/dd[1]/ul[1]/li")
         horse_names = [t.text for i, t in enumerate(table_rows)]
         horse_index = horse_names.index(horse_name)
         predictions = self.driver.find_elements_by_xpath(NK_PREDICTIONS_XP + "/tr[{}]/td".format(horse_index + 2))
@@ -418,10 +421,15 @@ class NetKeiba:
                                              training_time_grade_list])
         return training_result_list
 
-    def get_race_horse_list(self, is_sp_reg):
+    def get_race_horse_list(self, is_sp_reg, is_past_result):
         time.sleep(self.seconds)
         race_horse_list_short = []
         self.driver.get(NK_BM_URL)
+        if is_past_result:
+            try:
+                self.driver.find_element_by_xpath(NK_BM_PREVIOUS_WEEK_XP).click()
+            except NoSuchElementException:
+                pass
         is_local = False
         h = 1
 
