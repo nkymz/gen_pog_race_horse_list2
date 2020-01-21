@@ -28,7 +28,7 @@ NK_LOCAL_PREDICTIONS_URL = """
 http://nar.netkeiba.com/?pid=yoso&id=c{}
 """
 NK_STABLE_COMMENT_URL = """
-http://race.netkeiba.com/?pid=race_old&id=c{}&mode=comment
+https://race.netkeiba.com/race/comment.html?race_id={}
 """
 NK_LOCAL_STABLE_COMMENT_URL = """
 http://nar.netkeiba.com/?pid=race_old&id=c{}&mode=comment
@@ -124,7 +124,7 @@ NK_PREDICTIONS_XP = """
 """
 
 NK_STABLE_COMMENT_XP = """
-//div[@id="race_main"]//table/tbody
+//table[@id="All_Comment_Table"]/tbody
 """
 
 
@@ -297,7 +297,17 @@ class NetKeiba:
         stable_comment = ""
         stable_comment_columns = self.driver.find_elements_by_xpath(NK_STABLE_COMMENT_XP + "/tr[{}]/td"
                                                                     .format(horse_no + 1))
-        stable_comment += stable_comment_columns[3].text + "【" + stable_comment_columns[4].text + "】"
+        markwk = self.driver.find_element_by_xpath('//*[@id="All_Comment_Table"]/tbody/tr[{}]/td[5]/span'
+                    .format(horse_no + 1)).get_attribute("class")[-1:]
+        if markwk == "1":
+            mark = "◎"
+        elif markwk == "2":
+            mark = "○"
+        elif markwk == "3":
+            marrk = "△"
+        else:
+            mark = "―"
+        stable_comment += stable_comment_columns[3].text + "【" + mark + "】"
 
         return stable_comment
 
@@ -315,24 +325,32 @@ class NetKeiba:
             except:
                 return ""
 
-#        if not self.driver.find_elements_by_xpath("//dl[@class_='umaban']"):
-#            return ""
-
-#        prediction_header_text = [t.text.replace("\n", "") for t in self.driver.find_elements_by_xpath("//dl[@class_='umaban']")]
-#        hn_col_index = prediction_header_text.index("馬名")
+        predictors_list = [t.text.replace("\n", "") for t in self.driver.find_elements_by_xpath("//*[contains(@id,'yoso_goods_seq_')]")]
         table_rows = self.driver.find_elements_by_xpath("//dl[contains(@class,'Horse_Info')]/dd[1]/ul[1]/li")
         horse_names = [t.text for i, t in enumerate(table_rows)]
         horse_index = horse_names.index(horse_name)
-        predictions = self.driver.find_elements_by_xpath(NK_PREDICTIONS_XP + "/tr[{}]/td".format(horse_index + 2))
-        if not predictions:
-            return ""
+
         prediction_marks = ""
-        if "CP予想" in prediction_header_text:
-            range_max = prediction_header_text.index("CP予想")
-        else:
-            range_max = hn_col_index
-        for i in range(2, range_max):
-            prediction_marks += predictions[i].text.strip() if predictions[i].text.strip("\n") != "" else "－"
+        for i, predictor in enumerate(predictors_list):
+            if predictor == "CP予想":
+                break
+
+            mark_wk = \
+                self.driver.find_element_by_xpath("//*[contains(@id,'yoso_goods_seq_{}')]/dd[1]/ul[1]/li[{}]/span[1]"
+                                                  .format(i, horse_index + 1)).get_attribute("class")
+            if mark_wk == "Icon_Shirushi Icon_Honmei":
+                prediction_marks += "◎"
+            elif mark_wk == "Icon_Shirushi Icon_Taikou":
+                prediction_marks += "○"
+            elif mark_wk == "Icon_Shirushi Icon_Kurosan":
+                prediction_marks += "▲"
+            elif mark_wk == "Icon_Shirushi Icon_Hoshi":
+                prediction_marks += "☆"
+            elif mark_wk == "Icon_Shirushi Icon_Osae":
+                prediction_marks += "△"
+            else:
+                prediction_marks += "―"
+
         return prediction_marks
 
     def get_training_result(self, horse_no, race_id, is_local):
