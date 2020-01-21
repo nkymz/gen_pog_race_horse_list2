@@ -78,7 +78,7 @@ def write_html(race_horse_list, date_time_now):
     prev_track = None
 
     for race_horse in race_horse_list:
-        sort_key, race_date, race_time, track, race_no, race_name, race_grade, course, race_cond1, race_cond2, \
+        sort_key, race_date, race_time, track, race_no, race_name, race_grade, course, race_cond2, \
             horse_no, box_no, horse_name, jockey, odds, pop_rank, race_url, horse_url, owner, origin, result, \
             race_status, is_seal, result_url, training_result_list, prediction_marks, stable_comment, result_time, \
             result_last3f, weather, course_condition, race_id, horse_id, burden, weight, result_diff \
@@ -116,7 +116,6 @@ def main():
     poh_list = POHorseList()
     nk_id, nk_pw = poh_list.get_nk_auth_info()
     nk = NetKeiba(nk_id, nk_pw, 0, "test")
-#    soup_nk = SoupNK("html5lib", 1, nk_id, nk_pw)
 
     for rhl_short in nk.get_race_horse_list(is_sp_reg, is_past_result):
         race_year, race_month, race_day, race_weekday, track, race_id, race_grade, race_no,\
@@ -135,7 +134,7 @@ def main():
         sort_key = race_date + race_time + race_no + track + horse_no.zfill(2) + horse_name
         race_horse_list.append(
                 [sort_key, race_date, race_time, track, race_no, race_name, race_grade, course.replace("\xa0", " "),
-                 race_cond1, race_cond2.replace("\xa0", " "), horse_no, box_no, horse_name, jockey, odds, pop_rank,
+                 race_cond2.replace("\xa0", " "), horse_no, box_no, horse_name, jockey, odds, pop_rank,
                  race_url, horse_url, owner, origin, result, race_status, is_seal, result_url, training_result_list,
                  prediction_marks, stable_comment, result_time, result_last3f, weather, course_condition, race_id,
                  horse_id, burden, weight, result_diff])

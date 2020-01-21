@@ -273,7 +273,7 @@ class NetKeiba:
         prediction_marks = self.get_predictions(horse_name, race_id, is_local)
         stable_comment = self.get_stable_comment(int(horse_no), race_id, is_local)
 
-        return [race_time, race_name, course, race_cond1, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result,
+        return [race_time, race_name, course, race_cond2, horse_no, box_no, jockey, odds, pop_rank, result,
                 result_url, training_result_list, prediction_marks, stable_comment, result_time, result_last3f, weather,
                 course_condition, burden, weight, result_diff]
 

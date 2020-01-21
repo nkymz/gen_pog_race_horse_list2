@@ -97,10 +97,12 @@ class RHListHTML:
         s = '<li> <a href="' + race_url + '">' + track + race_no + " " + race_name + "【" + status + "】" \
             + '</a><br />\n'
         if weather == "&nbsp;":
-            s2 = race_time + " " + course + " " + race_cond2 + '<br />\n<ul style="margin-left:-1em;">'
+            s2 = race_time + " " + course + " <br />\n" + race_cond2.split("\n")[0]  \
+                + '<br /><ul style="margin-left:-1em;">'
         else:
-            s2 = race_time + " " + course + " " + race_cond2 + " " + weather + course_condition \
-                 + '<br />\n<ul style="margin-left:-1em;">'
+            s2 = race_time + " " + course + " " + weather + course_condition \
+                 + " <br />\n" + race_cond2.split("\n")[0] + '<br />\n<ul style="margin-left:-1em;">'
+
         if prev_date is None or (prev_date is not None and race_date != prev_date):
             self.f.write('<ul style="margin-left:-1em;">' + s)
             self.f.write(s2)
@@ -154,14 +156,15 @@ class RHListHTML:
         s = '<table border="1">'
         for training_result_row in training_result_list:
             training_date, training_course, training_course_condition, training_jockey, training_time_list, \
-                training_result_texts_list, training_position, training_stride, training_eval_text, training_eval_rank \
+                training_result_texts_list, training_position, training_stride, training_eval_text, training_eval_rank, \
+                training_time_grade_list \
                 = training_result_row
             if training_date[:4] != "0000":
                 s += "<tr><td>" + training_jockey + " " + training_date.split("/")[1] + "/" \
                      + training_date.split("/")[2].split("(")[0] + " " + training_course + " " \
                      + training_course_condition + " " + training_stride + " " + "<br />\n"
-                for t in training_time_list:
-                    s += t + " " if t != "-" else ""
+                for i, t in enumerate(training_time_list):
+                    s += t.replace("\n", "") + training_time_grade_list[i] + " " if t != "-" else ""
                 s += "[" + training_position + "]" + "<br />\n" if training_position else "<br />\n"
                 for t in training_result_texts_list:
                     s += t + "<br>\n"
