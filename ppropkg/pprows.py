@@ -146,20 +146,22 @@ class NetKeiba:
         self.driver.get(race_url)
         time.sleep(self.seconds)
         if not is_local:
-            if race_status == "特別登録":
-                race_name = self.driver.find_element_by_xpath(NK_RACE_NAME_XP_SP).text
-                course = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP_SP.format(1)).text
-                race_info = self.driver.find_element_by_xpath(NK_RACE_COURSE_XP_SP.format(2)).text
-                race_cond1 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP_SP.format(2)).text
-                race_cond2 = self.driver.find_element_by_xpath(NK_RACE_INFO_XP_SP.format(3)).text
+            race_name = self.driver.find_element_by_class_name("RaceName").text
+            racedata01 = self.driver.find_element_by_class_name("RaceData01").text
+            race_cond2 = self.driver.find_element_by_class_name("RaceData02").text
+            race_time = "--:--"
+            weather = ""
+            course_condition = ""
+            if len(racedata01.split("/")) == 1:
+                course = racedata01.split("/")[0]
+            elif len(racedata01.split("/")) == 2:
+                race_time = racedata01.split("/")[0][:5]
+                course = racedata01.split("/")[1]
             else:
-                race_name = self.driver.find_element_by_class_name("RaceName").text
-                racedata01 = self.driver.find_element_by_class_name("RaceData01").text
-                race_cond2 = self.driver.find_element_by_class_name("RaceData02").text
-            race_time = racedata01.split("/")[0][:5]
-            course = racedata01.split("/")[1]
-            weather = racedata01.split("/")[2].split(":")[1]
-            course_condition = racedata01.split("/")[3].split(":")[1]
+                race_time = racedata01.split("/")[0][:5]
+                course = racedata01.split("/")[1]
+                weather = racedata01.split("/")[2].split(":")[1]
+                course_condition = racedata01.split("/")[3].split(":")[1]
         else:
             race_name = self.driver.find_element_by_xpath(NK_LOCAL_RACE_NAME_XP).text
             race_info = self.driver.find_element_by_xpath(NK_LOCAL_RACE_COURSE_XP.format(1)).text
@@ -189,9 +191,11 @@ class NetKeiba:
                 box_no = self.driver.find_element_by_xpath(nk_horse_row_xp.format(horse_url[:-1], box_no_index)).text
             except NoSuchElementException:
                 box_no = "0"
-        else:
+
+        if horse_no == "":
             horse_no = "00"
             box_no = "0"
+
 
         if "騎手" in header_text:
             jockey_index = header_text.index("騎手") + 1
@@ -325,7 +329,8 @@ class NetKeiba:
             except:
                 return ""
 
-        predictors_list = [t.text.replace("\n", "") for t in self.driver.find_elements_by_xpath("//*[contains(@id,'yoso_goods_seq_')]")]
+        predictors_list = [t.text.replace("\n", "") for t in self.driver
+                            .find_elements_by_xpath("//*[contains(@id,'yoso_goods_seq_')]")]
         table_rows = self.driver.find_elements_by_xpath("//dl[contains(@class,'Horse_Info')]/dd[1]/ul[1]/li")
         horse_names = [t.text for i, t in enumerate(table_rows)]
         horse_index = horse_names.index(horse_name)
@@ -334,6 +339,11 @@ class NetKeiba:
         for i, predictor in enumerate(predictors_list):
             if predictor == "CP予想":
                 break
+
+            if len(self.driver.find_elements_by_xpath
+                    ("//*[contains(@id,'yoso_goods_seq_{}')]//span[contains(@class,'Icon_Shirushi')]"
+                        .format(i))) == 0:
+                continue
 
             mark_wk = \
                 self.driver.find_element_by_xpath("//*[contains(@id,'yoso_goods_seq_{}')]/dd[1]/ul[1]/li[{}]/span[1]"
@@ -361,14 +371,14 @@ class NetKeiba:
                 self.driver.get(NK_TRAINING_URL.format(race_id))
                 time.sleep(self.seconds)
             except:
-                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", "", ""])
                 return training_result_list
         else:
             try:
                 self.driver.get(NK_LOCAL_TRAINING_URL.format(race_id))
                 time.sleep(self.seconds)
             except:
-                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", "", ""])
                 return training_result_list
 
         try:
@@ -380,7 +390,7 @@ class NetKeiba:
         try:
             training_table = self.driver.find_element_by_xpath(NK_TRAINING_XP)
         except NoSuchElementException:
-            training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+            training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", "", ""])
             return training_result_list
 
         table_rows = self.driver.find_elements_by_xpath(NK_TRAINING_XP + "/tr/td[2]")
@@ -402,7 +412,7 @@ class NetKeiba:
             training_date = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
                                                                  .format(j, 4 - k)).text
             if training_date.split("/")[0] == "0000":
-                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", ""])
+                training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", "", ""])
             else:
                 training_course = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
                                                                  .format(j, 5 - k)).text
