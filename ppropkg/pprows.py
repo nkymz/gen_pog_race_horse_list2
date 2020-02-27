@@ -410,22 +410,22 @@ class NetKeiba:
             j = horse_index + i
             k = 0 if i == 0 else 3
             training_date = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                 .format(j, 4 - k)).text
+                                                                 .format(j, 5 - k)).text
             if training_date.split("/")[0] == "0000":
                 training_result_list.append(["0000/00/00(火)", "", "", "", "", [], "", "", "", "", ""])
             else:
                 training_course = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                 .format(j, 5 - k)).text
-                training_course_condition = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
                                                                  .format(j, 6 - k)).text
-                training_jockey = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                training_course_condition = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
                                                                  .format(j, 7 - k)).text
+                training_jockey = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                 .format(j, 8 - k)).text
                 training_time_list = [t.text for t in self.driver.find_elements_by_xpath(NK_TRAINING_XP
-                                                    + "/tr[{}]/td[{}]/ul/li".format(j, 8 - k))]
+                                                    + "/tr[{}]/td[{}]/ul/li".format(j, 9 - k))]
                 training_time_grade_list = []
                 for n in range(len(training_time_list)):
                     training_time_grade_wk = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]/ul/li[{}]"
-                                                                        .format(j, 8 - k, n + 1)).get_attribute('class')
+                                                                        .format(j, 9 - k, n + 1)).get_attribute('class')
                     if training_time_grade_wk == "TokeiColor01":
                         training_time_grade = "**"
                     elif training_time_grade_wk == "TokeiColor02":
@@ -434,15 +434,15 @@ class NetKeiba:
                         training_time_grade = ""
                     training_time_grade_list.append(training_time_grade)
                 training_result_texts_list = [t.text for t in self.driver.find_elements_by_xpath(NK_TRAINING_XP
-                                                    + "/tr[{}]/td[{}]//p".format(j, 8 - k))]
+                                                    + "/tr[{}]/td[{}]//p".format(j, 9 - k))]
                 training_position = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                      .format(j, 9 - k)).text
+                                                                      .format(j, 10 - k)).text
                 training_stride = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                        .format(j, 10 - k)).text
+                                                                        .format(j, 11 - k)).text
                 training_eval_text = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
-                                                                       .format(j, 11 - k)).text
-                training_eval_rank = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
                                                                        .format(j, 12 - k)).text
+                training_eval_rank = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
+                                                                       .format(j, 13 - k)).text
                 training_result_list.append([training_date, training_course, training_course_condition, training_jockey,
                                              training_time_list, training_result_texts_list, training_position,
                                              training_stride, training_eval_text, training_eval_rank,
@@ -550,7 +550,7 @@ class NetKeiba:
                             break
                     track = track_and_race_no[0:2]
                     race_no = ("0" + track_and_race_no[2:])[-3:]
-                    race_id = race_url.split("=")[2][1:] if is_local else race_url.split("=")[-1][1:]
+                    race_id = race_url.split("=")[2][1:] if is_local else race_url.split("=")[-1][0:]
                     race_year = int(race_id[0:4])
                     while True:
                         if not is_local:
