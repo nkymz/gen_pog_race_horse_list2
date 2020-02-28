@@ -550,7 +550,7 @@ class NetKeiba:
                             break
                     track = track_and_race_no[0:2]
                     race_no = ("0" + track_and_race_no[2:])[-3:]
-                    race_id = race_url.split("=")[2][1:] if is_local else race_url.split("=")[-1][0:]
+                    race_id = race_url.split("=")[2][1:] if is_local else race_url.split("=")[-1]
                     race_year = int(race_id[0:4])
                     while True:
                         if not is_local:
