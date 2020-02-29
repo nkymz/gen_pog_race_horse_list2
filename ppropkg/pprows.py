@@ -408,7 +408,7 @@ class NetKeiba:
 
         for i in range(num_of_trainings):
             j = horse_index + i
-            k = 0 if i == 0 else 3
+            k = 0 if i == 0 else 4
             training_date = self.driver.find_element_by_xpath(NK_TRAINING_XP + "/tr[{}]/td[{}]"
                                                                  .format(j, 5 - k)).text
             if training_date.split("/")[0] == "0000":
