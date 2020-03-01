@@ -308,7 +308,7 @@ class NetKeiba:
         elif markwk == "2":
             mark = "○"
         elif markwk == "3":
-            marrk = "△"
+            mark = "△"
         else:
             mark = "―"
         stable_comment += stable_comment_columns[3].text + "【" + mark + "】"
