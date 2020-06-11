@@ -164,7 +164,14 @@ class RHListHTML:
                      + training_date.split("/")[2].split("(")[0] + " " + training_course + " " \
                      + training_course_condition + " " + training_stride + " " + "<br />\n"
                 for i, t in enumerate(training_time_list):
-                    s += t.replace("\n", "") + training_time_grade_list[i] + " " if t != "-" else ""
+                    if training_time_grade_list[i] == "**":
+                        s += '<span style="font-weight: 900; color:#FF0000;">' + t.replace("\n", "") + "</span> " \
+                            if t != "-" else ""
+                    elif training_time_grade_list[i] == "*":
+                        s += '<span style="font-weight: 900; color:#FF8888;">' + t.replace("\n", "") + "</span> " \
+                            if t != "-" else ""
+                    else:
+                        s += t.replace("\n", "") + " " if t != "-" else ""
                 s += "[" + training_position + "]" + "<br />\n" if training_position else "<br />\n"
                 for t in training_result_texts_list:
                     s += t + "<br>\n"
